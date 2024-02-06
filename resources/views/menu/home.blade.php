@@ -49,17 +49,18 @@
         .col-md-6 i {
             margin-top: 10px;
         }
+
         .circle-icon {
-        margin-left: 60px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        /* background-color: #3498db;
-        color: #fff; */
-    }
+            margin-left: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            /* background-color: #3498db;
+                                        color: #fff; */
+        }
     </style>
 
     @if (session()->has('success'))
@@ -82,66 +83,138 @@
     <div class="container">
         <div class="row">
             <div class="col-md-3">
-                <div class="card">
+                <a href="" class="card bg-warning hoverable card-xl-stretch mb-5 mb-xl-8">
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p>Total Admin</p>
-                                <h1>{{$admin}}</h1>
-                            </div>
-                            <div class="col-md-6 circle-icon" style="background-color: #ffc107;color:black">
-                                <i class="fa-solid fa-user-secret fa-xl"></i>
-                            </div>
+                        <i class="fa-solid fa-user-secret fa-2xl text-center mt-3" style="color: black"></i>
+
+                        <div class="text-white fw-bold fs-5 mb-2 mt-4 ">
+                            Total Admin
+                        </div>
+                        <div class="fw-semibold text-white ">
+                            {{ $admin }}
                         </div>
                     </div>
-                </div>
+
+                </a>
             </div>
             <div class="col-md-3">
-                <div class="card">
+                <a href="" class="card bg-info hoverable card-xl-stretch mb-5 mb-xl-8">
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p>Total Customer</p>
-                                <h1>{{$user}}</h1>
-                            </div>
-                            <div class="col-md-6 circle-icon" style="background-color: #3498db;color:white">
-                                <i class="fas fa-users fa-xl"></i>
-                            </div>
+                        <i class="fas fa-users fa-xl mt-3" style="color: white"></i>
+
+                        <div class="text-white fw-bold fs-5 mb-2 mt-4 ">
+                            Customers
+                        </div>
+                        <div class="fw-semibold text-white ">
+                            {{ $user }}
                         </div>
                     </div>
-                </div>
+
+                </a>
             </div>
             <div class="col-md-3">
-                <div class="card">
+                <a href="" class="card bg-success hoverable card-xl-stretch mb-5 mb-xl-8">
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p>Pesan Masuk</p>
-                                <h1>{{$contact}}</h1>
-                            </div>
-                            <div class="col-md-6 circle-icon" style="background-color: #3498db;color:white">
-                                <i class="fas fa-envelope fa-xl"></i>
-                            </div>
+                        <i class="fas fa-envelope fa-2xl mt-3" style="color: white"></i>
+                        <div class="text-white fw-bold fs-5 mb-2 mt-4 ">
+                            Pesan Masuk
+                        </div>
+                        <div class="fw-semibold text-white ">
+                            {{ $contact }}
                         </div>
                     </div>
-                </div>
+
+                </a>
             </div>
-            <div class="col-md-3" >
-                <div class="card">
+            <div class="col-md-3">
+                <a href="" class="card hoverable card-xl-stretch mb-5 mb-xl-8" style="background-color: #15acc5">
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p>Total Product</p>
-                                <h1>{{$product}}</h1>
-                            </div>
-                            <div class="col-md-6 circle-icon" style="background-color: #15acc5;color:white">
-                                <i class="fa-solid fa-flask fa-xl"></i>
-                            </div>
+                        <i class="fa-solid fa-flask fa-2xl mt-3" style="color: white"></i>
+
+                        <div class="text-white fw-bold fs-5 mb-2 mt-4 ">
+                            Total Product
+                        </div>
+                        <div class="fw-semibold text-white ">
+                            {{ $product }}
                         </div>
                     </div>
-                </div>
+
+                </a>
             </div>
-        </div>
         </div>
     </div>
+
+
+    <div class="container" style="width: 100%;">
+        <h2 class="ml-3 text-xl font-bold text-gray-900">Statistik User</h2>
+        <canvas id="userChart"></canvas>
+    </div>
+
+    <div class="container" style="width: 100%;">
+        <h2 class="ml-3 text-xl font-bold text-gray-900">Statistik Penjualan Product</h2>
+        <canvas id="productChart"></canvas>
+    </div>
+
+    <div class="container text-center">
+        <div class="col-md-3 mx-auto">
+            <div class="card">
+                <div class="card-body">
+                    <div class="col-md-12">
+                        <p>Total Pendapatan : Rp{{ number_format($totalIncome, 2) }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        var ctx = document.getElementById('userChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: @json($data['labels']),
+                datasets: [{
+                    label: 'Total User',
+                    data: @json($data['data']),
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+
+    <script>
+        var ctx = document.getElementById('productChart').getContext('2d');
+        var chartData = @json($chartData);
+
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartData.labels,
+                datasets: [{
+                    label: 'Total Penjualan',
+                    data: chartData.data,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
 @endsection

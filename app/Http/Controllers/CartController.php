@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\Product;
@@ -26,7 +27,7 @@ class CartController extends Controller
                     return $name;
                 })
                 ->addColumn('price', function ($data) {
-                    $price = $data->productDetail->price * $data->qty;
+                    $price = $data->productDetail->where('nic', $data->nic)->first()->price * $data->qty;
                     return $price;
                 })
                 ->addColumn('nic', function ($data) {
@@ -181,8 +182,8 @@ class CartController extends Controller
             'payment' => null,
             'payment_status' => 'pending',
             'resi' => 0,
-            'updated_at' => now(),
-            'created_at' => now(),
+            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
         ]);
 
         //$cart->delete();
