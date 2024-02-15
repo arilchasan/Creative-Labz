@@ -59,7 +59,7 @@
             height: 60px;
             border-radius: 50%;
             /* background-color: #3498db;
-                                        color: #fff; */
+                                                                                                                color: #fff; */
         }
     </style>
 
@@ -88,7 +88,7 @@
                         <i class="fa-solid fa-user-secret fa-2xl text-center mt-3" style="color: black"></i>
 
                         <div class="text-white fw-bold fs-5 mb-2 mt-4 ">
-                            Total Admin
+                            Admin
                         </div>
                         <div class="fw-semibold text-white ">
                             {{ $admin }}
@@ -132,7 +132,7 @@
                         <i class="fa-solid fa-flask fa-2xl mt-3" style="color: white"></i>
 
                         <div class="text-white fw-bold fs-5 mb-2 mt-4 ">
-                            Total Product
+                            Product
                         </div>
                         <div class="fw-semibold text-white ">
                             {{ $product }}
@@ -147,11 +147,85 @@
 
     <div class="container" style="width: 100%;">
         <h2 class="ml-3 text-xl font-bold text-gray-900">Statistik User</h2>
+        <div class="d-flex justify-content-end my-2">
+            <div class="me-2">
+                <label for="bulan">Pilih Bulan:</label>
+                <select id="bulan" name="bulan" class="form-control">
+                    <option selected disabled>Pilih Bulan</option>
+                    <option value="1">Januari</option>
+                    <option value="2">Februari</option>
+                    <option value="3">Maret</option>
+                    <option value="4">April</option>
+                    <option value="5">Mei</option>
+                    <option value="6">Juni</option>
+                    <option value="7">Juli</option>
+                    <option value="8">Agustus</option>
+                    <option value="9">September</option>
+                    <option value="10">Oktober</option>
+                    <option value="11">November</option>
+                    <option value="12">Desember</option>
+                </select>
+            </div>
+            <div class="me-2">
+                <label for="tahun">Pilih Tahun:</label>
+                <select id="tahun" name="tahun" class="form-control">
+                    <option selected disabled>Pilih Tahun</option>
+                    <option value="2022">2022</option>
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                </select>
+            </div>
+            <div class="me-2 mt-4">
+                <button type="submit" class="btn btn-primary" id="filter"
+                    style="background-color: #002c4f;border: none">Filter</button>
+                <a class="btn btn-success" id="downloadExcel" href="{{ route('downloadExcel') }}"
+                    style="background-color: green;border: none"><i class="bi bi-file-earmark-excel-fill"
+                        style="font-size: 1.5rem"></i></a>
+            </div>
+        </div>
         <canvas id="userChart"></canvas>
     </div>
 
     <div class="container" style="width: 100%;">
         <h2 class="ml-3 text-xl font-bold text-gray-900">Statistik Penjualan Product</h2>
+        <div class="d-flex justify-content-end my-2">
+            <div class="me-2">
+                <label for="bulan">Pilih Bulan:</label>
+                <select id="bulanProduct" name="bulanProduct" class="form-control">
+                    <option selected disabled>Pilih Bulan</option>
+                    <option value="1">Januari</option>
+                    <option value="2">Februari</option>
+                    <option value="3">Maret</option>
+                    <option value="4">April</option>
+                    <option value="5">Mei</option>
+                    <option value="6">Juni</option>
+                    <option value="7">Juli</option>
+                    <option value="8">Agustus</option>
+                    <option value="9">September</option>
+                    <option value="10">Oktober</option>
+                    <option value="11">November</option>
+                    <option value="12">Desember</option>
+                </select>
+            </div>
+            <div class="me-2">
+                <label for="tahun">Pilih Tahun:</label>
+                <select id="tahunProduct" name="tahunProduct" class="form-control">
+                    <option selected disabled>Pilih Tahun</option>
+                    <option value="2022">2022</option>
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                </select>
+            </div>
+            <div class="me-2 mt-4">
+                <button type="submit" class="btn btn-primary" id="filterProduct"
+                    style="background-color: #002c4f;border: none">Filter</button>
+                <a class="btn btn-success" id="filter" href="{{ route('downloadExcelOrder') }}"
+                    style="background-color: green;border: none"><i class="bi bi-file-earmark-excel-fill"
+                    style="font-size: 1.5rem"></i></a>
+            </div>
+        </div>
         <canvas id="productChart"></canvas>
     </div>
 
@@ -168,6 +242,9 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+        integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
         var ctx = document.getElementById('userChart').getContext('2d');
         var myChart = new Chart(ctx, {
@@ -190,6 +267,60 @@
                 }
             }
         });
+    </script>
+
+    <script>
+        document.getElementById('filter').addEventListener('click', function() {
+            var bulan = document.getElementById('bulan').value;
+            var tahun = document.getElementById('tahun').value;
+
+            $.ajax({
+                type: 'GET',
+                url: '{{ route('filterData') }}',
+                data: {
+                    bulan: bulan,
+                    tahun: tahun
+                },
+                success: function(response) {
+                    updateChart(response.labels, response.data);
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        });
+
+        function updateChart(labels, data) {
+            var userChart = Chart.getChart('userChart');
+            if (userChart) {
+
+                userChart.data.labels = labels;
+                userChart.data.datasets[0].data = data;
+                userChart.update();
+            } else {
+                var ctx = document.getElementById('userChart').getContext('2d');
+                userChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Total User',
+                            data: data,
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+        }
     </script>
 
     <script>
@@ -216,5 +347,57 @@
                 }
             }
         });
+    </script>
+    <script>
+        document.getElementById('filterProduct').addEventListener('click', function() {
+            var bulanP = document.getElementById('bulanProduct').value;
+            var tahunP = document.getElementById('tahunProduct').value;
+
+            $.ajax({
+                type: 'GET',
+                url: '{{ route('filterProduct') }}',
+                data: {
+                    bulanProduct: bulanP,
+                    tahunProduct: tahunP
+                },
+                success: function(response) {
+                    updateChartProduct(response.labels, response.data);
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        });
+
+        function updateChartProduct(labels, data) {
+            var productChart = Chart.getChart('productChart');
+            if (productChart) {
+                productChart.data.labels = labels;
+                productChart.data.datasets[0].data = data;
+                productChart.update();
+            } else {
+                var ctx = document.getElementById('productChart').getContext('2d');
+                productChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Total Penjualan',
+                            data: data,
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+        }
     </script>
 @endsection

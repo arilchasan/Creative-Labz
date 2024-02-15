@@ -33,6 +33,10 @@ Route::get('/logout', [AuthController::class,'loggedOut'])->name('logout');
 
 Route::prefix('/dashboard')->middleware('auth:admin')->group(function() {
     Route::get('/home', [HomeController::class,'home']);
+    Route::get('/filterData', [HomeController::class,'filterData'])->name('filterData');
+    Route::get('/filterProduct', [HomeController::class,'filterDataProduct'])->name('filterProduct');
+    Route::get('/download-excel', [HomeController::class, 'downloadExcel'])->name('downloadExcel');
+    Route::get('/download-excel-order', [HomeController::class, 'downloadExcelOrder'])->name('downloadExcelOrder');
      Route::prefix('/admin')->group(function() {
         Route::get('/all', [AdminController::class,'index'])->name('admin.all');
         Route::get('/create', [AdminController::class,'create'])->name('admin.create');

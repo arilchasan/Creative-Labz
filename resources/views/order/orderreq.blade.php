@@ -18,7 +18,7 @@
     </style>
     <div class="card shadow m-2 p-3">
         <div class="card-header border-0 flex justify-between items-center">
-            <h3 class="mb-0">Daftar Req Order</h3>
+            <h3 class="mb-0">Daftar Request Order</h3>
             {{-- <a href="{{ route('cart.create') }}" class="btn btn-success ml-2 leading-2 px-3">+ Cart</a> --}}
         </div>
         @if (session()->has('success'))
