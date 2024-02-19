@@ -16,10 +16,21 @@ class OrderController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         if (request()->ajax()) {
-            $data = Order::latest()->get();
+            $startDate = $request->input('start_date');
+            $endDate = $request->input('end_date');
+
+            $query = Order::query();
+
+            // Filter data berdasarkan tanggal jika tanggal mulai dan tanggal selesai tersedia
+            if ($startDate && $endDate) {
+                $query->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+            }
+
+            $data = $query->get();
+
             return DataTables::of($data)
                 ->addColumn('name', function ($data) {
                     $name = $data->cart->product->name;
@@ -29,9 +40,9 @@ class OrderController extends Controller
                     $username = $data->user->name ?? 'Not Registered';
                     return $username;
                 })
+                ->addIndexColumn()
                 ->addColumn('action', function ($data) {
                     $actionBtn = '<a href="/dashboard/order/detail-' . $data->id . '" class="info btn btn-info btn-sm"><i class="fa-solid fa-circle-info" style="color: #ffffff;"></i></a> <a href="/dashboard/order/cost-' . $data->id . '" class="info btn btn-warning btn-sm"><i class="fa-solid fa-receipt" style="color: #ffffff;"></i> </a> <a onclick="deleteConfirmation(' . $data->id . ')" class="delete btn btn-danger btn-sm"><i class="fas fa-trash" style="color: white;"></i></a>';
-
                     return $actionBtn;
                 })
                 ->rawColumns(['action'])
@@ -264,6 +275,22 @@ class OrderController extends Controller
         $total = $price->price * $order->cart->qty - $order->promo;
         return view('order.detail', compact('order', 'total', 'price'));
     }
+    public function filterByDate(Request $request)
+    {
+
+        $start_date = $request->input('start_date');
+        $end_date = $request->input('end_date');
+
+
+        $start_date = date('Y-m-d', strtotime($start_date));
+        $end_date = date('Y-m-d', strtotime($end_date));
+
+
+        $orders = Order::with('user', 'cart')->whereBetween('created_at', [$start_date . ' 00:00:00', $end_date . ' 23:59:59'])->get();
+
+        return response()->json($orders);
+    }
+
 
     public function updateCart(Request $request, $id)
     {

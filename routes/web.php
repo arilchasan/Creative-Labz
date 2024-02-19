@@ -107,6 +107,7 @@ Route::prefix('/dashboard')->middleware('auth:admin')->group(function() {
         Route::get('/failed-detail-{id}', [OrderController::class,'detailFailed'])->name('order.detailFailed');
         Route::get('/success-detail-{id}', [OrderController::class,'detailSuccess'])->name('order.detailSuccess');
         Route::post('/pending-order-{id}', [OrderController::class,'pendingPayment'])->name('order.pendingPayment');
+        Route::get('/filterByDate', [OrderController::class,'filterByDate'])->name('order.filterByDate');
     });
     Route::prefix('promo')->group(function() {
         Route::get('/all', [PromoController::class,'index'])->name('promo.all');

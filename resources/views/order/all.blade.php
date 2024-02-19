@@ -17,10 +17,7 @@
         }
     </style>
     <div class="card shadow m-2 p-3">
-        <div class="card-header border-0 flex justify-between items-center">
-            <h3 class="mb-0">Daftar Order</h3>
-            {{-- <a href="{{ route('cart.create') }}" class="btn btn-success ml-2 leading-2 px-3">+ Cart</a> --}}
-        </div>
+
         @if (session()->has('success'))
             <div class="alert alert-success alert-dismissible d-flex align-items-center fade show">
                 <i class="bi-check-circle-fill"></i>
@@ -35,6 +32,22 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         @endif
+        <div class="d-flex justify-between align-items-center  mb-3">
+            <div class="card-header border-0 flex justify-between items-center">
+                <h2 class="mb-0">Daftar Order</h2>
+            </div>
+            <div class="d-flex align-items-center">
+                {{-- <div class="d-flex align-items-center"> --}}
+                    <input type="date" class="form-control mt-2" style="height: 20px; width: 15rem; padding: 1rem;" placeholder="Tanggal Mulai"
+                        id="start_date" name="start_date">
+                    <label class="form-label ms-2 me-2">-</label>
+                    <input type="date" class="form-control mt-2" style="height: 20px; width: 15rem; padding: 1rem" placeholder="Tanggal Selesai"
+                        id="end_date" name="end_date">
+                {{-- </div> --}}
+                <button type="button" class="btn btn-primary ml-2" style="background-color: blue"
+                    id="filter">Filter</button>
+            </div>
+        </div>
         <div class="table-responsive">
             <table id="order-table" class="table align-items-center table-flush ">
                 <thead class="thead-light">
@@ -100,7 +113,7 @@
                         orderable: true,
                         searchable: true,
                         render: function(data, type, row, meta) {
-                        return `
+                            return `
                         <th scope="row">
                             <div class="media align-items-end">
                                 <div class="media-body p-0">
@@ -116,7 +129,7 @@
                         orderable: true,
                         searchable: true,
                         render: function(data, type, row, meta) {
-                        return `
+                            return `
                         <th scope="row">
                             <div class="media align-items-end">
                                 <div class="media-body p-0">
@@ -133,7 +146,7 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row, meta) {
-                        return `
+                            return `
                         <th scope="row">
                             <div class="media align-items-end">
                                 <div class="media-body p-0">
@@ -144,6 +157,15 @@
                         }
                     },
                 ],
+            });
+            $('#filter').on('click', function() {
+                var startDate = $('#start_date').val();
+                var endDate = $('#end_date').val();
+
+                table.clear()
+                    .draw(); // Menghapus data saat ini dari tabel sebelum memuat data yang difilter
+                table.ajax.url("{{ route('order.all') }}?start_date=" + startDate + "&end_date=" + endDate)
+                    .load();
             });
         });
 
