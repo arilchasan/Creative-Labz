@@ -8,6 +8,7 @@ use App\Models\Address;
 use Illuminate\Http\Request;
 use App\Models\ProductDetail;
 use App\Models\Promo;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -42,8 +43,9 @@ class OrderController extends Controller
                 })
                 ->addIndexColumn()
                 ->addColumn('action', function ($data) {
-                    $actionBtn = '<a href="/dashboard/order/detail-' . $data->id . '" class="info btn btn-info btn-sm"><i class="fa-solid fa-circle-info" style="color: #ffffff;"></i></a> <a href="/dashboard/order/cost-' . $data->id . '" class="info btn btn-warning btn-sm"><i class="fa-solid fa-receipt" style="color: #ffffff;"></i> </a> <a onclick="deleteConfirmation(' . $data->id . ')" class="delete btn btn-danger btn-sm"><i class="fas fa-trash" style="color: white;"></i></a>';
+                    $actionBtn = '<a href="/dashboard/order/detail-product-' . $data->id . '" class="info btn btn-info btn-sm"><i class="fa-solid fa-circle-info" style="color: #ffffff;"></i></a> <a href="/dashboard/order/detail-' . $data->id . '" class="success btn btn-success btn-sm"><i class="fa-solid fa-bag-shopping" style="color: #ffffff;"></i></a> <a href="/dashboard/order/cost-' . $data->id . '" class="info btn btn-warning btn-sm"><i class="fa-solid fa-receipt" style="color: #ffffff;"></i> </a> <a onclick="deleteConfirmation(' . $data->id . ')" class="delete btn btn-danger btn-sm"><i class="fas fa-trash" style="color: white;"></i></a>';
                     return $actionBtn;
+                    //<i class="fa-solid fa-bag-shopping"></i>
                 })
                 ->rawColumns(['action'])
                 ->make(true);
@@ -158,6 +160,23 @@ class OrderController extends Controller
         return redirect()->route('order.reqOrder')->with('success', 'Berhasil mengupload ulang bukti pembayaran!');
     }
 
+
+    public function detailProduct($id)
+    {
+        $order = Order::find($id);
+        $date = Carbon::parse($order->created_at)->translatedFormat('d F Y H:i');
+        return view('order.detailproduct', compact('order', 'date'));
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $order = Order::find($id);
+        $order->status = $request->status;
+        $order->payment_status = $request->status;
+        $order->save();
+
+        return redirect()->back()->with('success', 'Berhasil mengubah status!');
+    }
 
     public function accPayment($id)
     {

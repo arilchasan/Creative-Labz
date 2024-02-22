@@ -38,11 +38,11 @@
             </div>
             <div class="d-flex align-items-center">
                 {{-- <div class="d-flex align-items-center"> --}}
-                    <input type="date" class="form-control mt-2" style="height: 20px; width: 15rem; padding: 1rem;" placeholder="Tanggal Mulai"
-                        id="start_date" name="start_date">
-                    <label class="form-label ms-2 me-2">-</label>
-                    <input type="date" class="form-control mt-2" style="height: 20px; width: 15rem; padding: 1rem" placeholder="Tanggal Selesai"
-                        id="end_date" name="end_date">
+                <input type="date" class="form-control mt-2" style="height: 20px; width: 15rem; padding: 1rem;"
+                    placeholder="Tanggal Mulai" id="start_date" name="start_date">
+                <label class="form-label ms-2 me-2">-</label>
+                <input type="date" class="form-control mt-2" style="height: 20px; width: 15rem; padding: 1rem"
+                    placeholder="Tanggal Selesai" id="end_date" name="end_date">
                 {{-- </div> --}}
                 <button type="button" class="btn btn-primary ml-2" style="background-color: blue"
                     id="filter">Filter</button>
@@ -52,9 +52,12 @@
             <table id="order-table" class="table align-items-center table-flush ">
                 <thead class="thead-light">
                     <tr>
-                        <th scope="col" style="width: 20%">ID</th>
-                        <th scope="col" style="width: 30%">Name</th>
-                        <th scope="col" style="width: 30%">Customers</th>
+                        <th scope="col" style="width: 10%">ID</th>
+                        <th scope="col" style="width: 20%">KodeTransaksi</th>
+                        <th scope="col" style="width: 20%">Customers</th>
+                        <th scope="col" style="width: 20%">Total</th>
+                        <th scope="col" style="width: 20%">Tanggal</th>
+                        <th scope="col" style="width: 20%">Status</th>
                         <th scope="col" style="width: 10%">Action</th>
                     </tr>
                 </thead>
@@ -107,9 +110,10 @@
                             return meta.row + meta.settings._iDisplayStart + 1;
                         }
                     },
+
                     {
-                        data: 'name',
-                        name: 'name',
+                        data: 'code_transfer',
+                        name: 'code_transfer',
                         orderable: true,
                         searchable: true,
                         render: function(data, type, row, meta) {
@@ -139,7 +143,86 @@
                         </th>`
                         }
                     },
+                    {
+                        data: 'total',
+                        name: 'total',
+                        orderable: true,
+                        searchable: true,
+                        render: function(data, type, row, meta) {
+                            const formattedData = new Intl.NumberFormat('id-ID', {
+                                style: 'currency',
+                                currency: 'IDR',
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 2,
+                            }).format(data);
+                            return `
+                            <th scope="row">
+                                <div class="media align-items-end">
+                                    <div class="media-body p-0">
+                                        <span class="mb-0 text-sm">${formattedData}</span>
+                                    </div>
+                                </div>
+                            </th>`
+                        }
+                    },
+                    {
+                        data: 'created_at',
+                        name: 'created_at',
+                        orderable: true,
+                        searchable: true,
+                        render: function(data, type, row, meta) {
+                            var date = new Date(data);
 
+                            var monthNames = ["Januari", "Februari", "Maret", "April", "Mei",
+                                "Juni",
+                                "Juli", "Agustus", "September", "Oktober", "November",
+                                "Desember"
+                            ];
+
+
+                            var day = date.getDate();
+                            var monthIndex = date.getMonth();
+                            var year = date.getFullYear();
+
+
+                            var formattedDate = day + ' ' + monthNames[monthIndex] + ' ' + year;
+
+                            return `
+                            <th scope="row">
+                                <div class="media align-items-end">
+                                    <div class="media-body p-0">
+                                        <span class="mb-0 text-sm">${formattedDate}</span>
+                                    </div>
+                                </div>
+                            </th>`;
+                        }
+                    },
+                    {
+                        data: 'payment_status',
+                        name: 'payment_status',
+                        orderable: false,
+                        searchable: false,
+                        render: function(data, type, row, meta) {
+                            let backgroundColor = '';
+
+                            if (data === 'pending') {
+                                backgroundColor = '#ff6c00';
+                            } else if (data === 'success') {
+                                backgroundColor = '#28a745';
+                            } else if (data === 'failed') {
+                                backgroundColor = '#dc3545';
+                            }
+
+                            return `
+                            <th scope="row">
+                                <div class="media align-items-end">
+                                    <div class="media-body p-0">
+                                        <span class="mb-0 text-sm" style="background-color: ${backgroundColor};padding: 5px 10px; display: inline-block;color:white;border-radius:50px">${data}</span>
+                                    </div>
+                                </div>
+                            </th>`;
+                        }
+                    },
                     {
                         data: 'action',
                         name: 'action',

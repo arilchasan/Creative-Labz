@@ -171,6 +171,13 @@ class CartController extends Controller
         $product = Product::find($cart->product_id);
         $subtotal = ProductDetail::where('nic', $cart->nic)->first()->price * $cart->qty;
         $total = $subtotal;
+
+        $latestOrder = Order::latest()->first();
+        $serialNumber = $latestOrder ? $latestOrder->id + 1 : 1;
+        $serialNumber = str_pad($serialNumber, 5, '0', STR_PAD_LEFT); // Ensure 5 digits serial number
+
+        $appName = 'CL';
+        $transactionCode = $appName . '.' . date('d.m.Y') . '.' . $serialNumber;
         $order = Order::create([
             'user_id' => Auth::user()->id ?? null,
             'cart_id' => $cart->id,
@@ -182,6 +189,7 @@ class CartController extends Controller
             'payment' => null,
             'payment_status' => 'pending',
             'resi' => 0,
+            'code_transfer' => $transactionCode,
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
         ]);

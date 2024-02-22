@@ -35,13 +35,13 @@
         @if ($order->payment != null)
             <h2 class="ml-3 text-center" style="font-style: italic; font-size: 17px">Kode Pembayaran</h2>
             @if($order->payment == 'online-payment')
-                <h4 class="ml-3 text-center" style="font-style: italic; font-size: 17px">tugigab{{ $numeric }}</h4>
+                <h4 class="ml-3 text-center" style="font-style: italic; font-size: 17px">{{ $order->code_transfer }}</h4>
             @endif
             @if($order->payment == 'gopay')
-                <h4 class="ml-3 text-center" style="font-style: italic; font-size: 17px">tugigab 0812345678</h4>
+                <h4 class="ml-3 text-center" style="font-style: italic; font-size: 17px">{{ $order->code_transfer }}</h4>
             @endif
             @if($order->payment == 'transfer-payment-bca')
-                <h4 class="ml-3 text-center" style="font-style: italic; font-size: 17px">tugigab{{ $numeric }}
+                <h4 class="ml-3 text-center" style="font-style: italic; font-size: 17px">{{ $order->code_transfer }}
                 </h4>
             @endif
             <form action="{{ route('order.uploadTransfer', ['id' => $order->id]) }}" method="POST"

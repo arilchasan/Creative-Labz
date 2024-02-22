@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('payment')->nullable();
             $table->enum('payment_status',['pending','success','failed']);
             $table->string('resi');
+            $table->string('code_transfer')->nullable();
             $table->string('transfer')->nullable();
             $table->timestamps();
         });

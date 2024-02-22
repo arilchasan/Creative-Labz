@@ -22,6 +22,7 @@ class Order extends Model
         'payment',
         'payment_status',
         'resi',
+        'code_transfer',
         'transfer',
     ];
 

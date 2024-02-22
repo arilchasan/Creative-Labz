@@ -90,6 +90,7 @@ Route::prefix('/dashboard')->middleware('auth:admin')->group(function() {
     });
     Route::prefix('/order')->group(function() {
         Route::get('/all', [OrderController::class,'index'])->name('order.all');
+        Route::get('/detail-product-{name}', [OrderController::class,'detailProduct'])->name('order.detailProduct');
         Route::get('/detail-{name}', [OrderController::class,'show'])->name('order.detail');
         Route::get('/cost-{name}', [OrderController::class,'cost'])->name('order.cost');
         Route::post('/postCost-{id}', [OrderController::class,'postCost'])->name('order.postCost');
@@ -108,6 +109,7 @@ Route::prefix('/dashboard')->middleware('auth:admin')->group(function() {
         Route::get('/success-detail-{id}', [OrderController::class,'detailSuccess'])->name('order.detailSuccess');
         Route::post('/pending-order-{id}', [OrderController::class,'pendingPayment'])->name('order.pendingPayment');
         Route::get('/filterByDate', [OrderController::class,'filterByDate'])->name('order.filterByDate');
+        Route::post('/statusOrder-{id}', [OrderController::class,'updateStatus'])->name('order.updateStatus');
     });
     Route::prefix('promo')->group(function() {
         Route::get('/all', [PromoController::class,'index'])->name('promo.all');
