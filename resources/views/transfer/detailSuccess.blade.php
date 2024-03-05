@@ -7,7 +7,7 @@
         <h2 class="text-lg font-semibold capitalize">Detail Order</h2>
         <div class="row g-3 mt-2">
             <div class="col-md-6 text-center">
-                <img src="{{ asset('assets/product/' . $order->cart->product->image) }}" alt=""
+                <img src="{{ asset('assets/product/' . $order->cart->product->images[0]->image) }}" alt=""
                     class="d-flex mx-auto justify-content-center align-items-center img-fluid" style="width: 300px">
                 <label class="form-label mt-2 text-center" for="image">Image</label>
             </div>
@@ -60,30 +60,38 @@
             <div class="col-md-12">
                 <label class="form-label" for="information">Information</label>
                 {{-- <textarea class="form-control" id="information" type="text" name="information" readonly>{!!$cart->product->information !!}</textarea> --}}
-             {!! $order->cart->product->information !!}
+                {!! $order->cart->product->information !!}
             </div>
             <div class="col-md-12">
                 <label class="form-label" for="description">Description</label>
                 {{-- <textarea class="form-control" id="description" type="text" name="description" readonly>{{ $desc }}</textarea> --}}
-              {!! $order->cart->product->description !!}
+                {!! $order->cart->product->description !!}
             </div>
         </div>
         <h2 class="text-md font-semibold capitalize mt-3" style="font-style: italic">Detail Customers</h2>
         <div class="row g-3 mt-2">
             <div class="col-md-6">
                 <label class="form-label" for="name">Nama Customers</label>
-                <p>{{ $order->user->name }}</p>
+                <p>{{ $order->user->name ?? 'Not Registered' }}</p>
                 {{-- <input id="name" type="text" name="name" value="{{ $order->user->name }}" class="form-control"
                     readonly> --}}
             </div>
             <div class="col-md-6">
                 <label class="form-label" for="email">Email</label>
-                <p>{{ $order->user->email }}</p>
+                <p>{{ $order->user->email ?? 'Not Registered' }}</p>
                 {{-- <input id="email" type="text" name="email" value="{{ $order->user->email }}" class="form-control" readonly> --}}
             </div>
             <div class="col-md-6">
                 <label class="form-label" for="status">Status</label>
-                <p>{{ $order->status == 'success' ? 'Berhasil' : $order->status }}</p>
+                <p>
+                    <span id="orderStatus" class="badge ms-2"
+                        style="background-color:
+                        @if ($order->status == 'pending') orange;
+                        @elseif($order->status == 'success') green;
+                        @elseif($order->status == 'failed') red; @endif">
+                        {{ $order->status }}
+                    </span>
+                </p>
                 {{-- <input id="status" type="text" name="status" value="{{ $order->status == 'success' ? 'Berhasil' : $order->status }}"
                 class="form-control" readonly> --}}
             </div>

@@ -13,7 +13,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\RajaOngkirController;
 use App\Http\Controllers\Api\ContactController;
-
+use App\Http\Controllers\NicController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,6 +37,8 @@ Route::prefix('/dashboard')->middleware('auth:admin')->group(function() {
     Route::get('/filterProduct', [HomeController::class,'filterDataProduct'])->name('filterProduct');
     Route::get('/download-excel', [HomeController::class, 'downloadExcel'])->name('downloadExcel');
     Route::get('/download-excel-order', [HomeController::class, 'downloadExcelOrder'])->name('downloadExcelOrder');
+    Route::get('/orders/export-pdf', [OrderController::class, 'exportPdf'])->name('orders.exportPdf');
+    Route::get('/get-nic/{id}',[NicController::class,'getNicStock'])->name('getNic');
      Route::prefix('/admin')->group(function() {
         Route::get('/all', [AdminController::class,'index'])->name('admin.all');
         Route::get('/create', [AdminController::class,'create'])->name('admin.create');
@@ -86,11 +88,12 @@ Route::prefix('/dashboard')->middleware('auth:admin')->group(function() {
         Route::get('/delete-{id}', [CartController::class,'removeFromCart'])->name('cart.delete');
         Route::get('/all', [CartController::class,'index'])->name('cart.all');
         Route::get('/detail-{id}', [CartController::class,'show'])->name('cart.detail');
-        Route::post('/order-{id}', [CartController::class,'order'])->name('cart.order');
+        Route::post('/order', [CartController::class,'order'])->name('cart.order');
+        Route::get('/list', [CartController::class,'list'])->name('cart.list');
     });
     Route::prefix('/order')->group(function() {
         Route::get('/all', [OrderController::class,'index'])->name('order.all');
-        Route::get('/detail-product-{name}', [OrderController::class,'detailProduct'])->name('order.detailProduct');
+        Route::get('/detail-product-{codeTransfer}', [OrderController::class,'detailProduct'])->name('order.detailProduct');
         Route::get('/detail-{name}', [OrderController::class,'show'])->name('order.detail');
         Route::get('/cost-{name}', [OrderController::class,'cost'])->name('order.cost');
         Route::post('/postCost-{id}', [OrderController::class,'postCost'])->name('order.postCost');

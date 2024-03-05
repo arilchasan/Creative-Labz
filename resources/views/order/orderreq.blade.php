@@ -20,6 +20,8 @@
         <div class="card-header border-0 flex justify-between items-center">
             <h3 class="mb-0">Daftar Request Order</h3>
             {{-- <a href="{{ route('cart.create') }}" class="btn btn-success ml-2 leading-2 px-3">+ Cart</a> --}}
+            <a href="{{ route('orders.exportPdf') }}" class="btn btn-danger"> Export PDF
+            </a>
         </div>
         @if (session()->has('success'))
             <div class="alert alert-success alert-dismissible d-flex align-items-center fade show">
@@ -35,14 +37,17 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         @endif
+
         <div class="table-responsive">
             <table id="order-table" class="table align-items-center table-flush ">
                 <thead class="thead-light">
                     <tr>
-                        <th scope="col" style="width: 20%">ID</th>
-                        <th scope="col" style="width: 30%">Name</th>
-                        <th scope="col" style="width: 30%">Customers</th>
-                        <th scope="col" style="width: 10%">Status</th>
+                        <th scope="col" style="width: 10%">ID</th>
+                        <th scope="col" style="width: 20%">Name Product</th>
+                        <th scope="col" style="width: 15%">Customers</th>
+                        <th scope="col" style="width: 15%">Jumlah</th>
+                        <th scope="col" style="width: 15%">Tanggal</th>
+                        <th scope="col" style="width: 15%">Status</th>
                         <th scope="col" style="width: 10%">Action</th>
                     </tr>
                 </thead>
@@ -126,6 +131,54 @@
                                 </div>
                             </div>
                         </th>`
+                        }
+                    },
+                    {
+                        data: 'qty',
+                        name: 'qty',
+                        orderable: true,
+                        searchable: true,
+                        render: function(data, type, row, meta) {
+                            return `
+                        <th scope="row">
+                            <div class="media align-items-end">
+                                <div class="media-body p-0">
+                                    <span class="mb-0 text-sm">${data}</span>
+                                </div>
+                            </div>
+                        </th>`
+                        }
+                    },
+                    {
+                        data: 'created_at',
+                        name: 'created_at',
+                        orderable: true,
+                        searchable: true,
+                        render: function(data, type, row, meta) {
+                            var date = new Date(data);
+
+                            var monthNames = ["Januari", "Februari", "Maret", "April", "Mei",
+                                "Juni",
+                                "Juli", "Agustus", "September", "Oktober", "November",
+                                "Desember"
+                            ];
+
+
+                            var day = date.getDate();
+                            var monthIndex = date.getMonth();
+                            var year = date.getFullYear();
+
+
+                            var formattedDate = day + ' ' + monthNames[monthIndex] + ' ' + year;
+
+                            return `
+                            <th scope="row">
+                                <div class="media align-items-end">
+                                    <div class="media-body p-0">
+                                        <span class="mb-0 text-sm">${formattedDate}</span>
+                                    </div>
+                                </div>
+                            </th>`;
                         }
                     },
 

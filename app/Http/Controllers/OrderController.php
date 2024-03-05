@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
+use Dompdf\Dompdf;
 use App\Models\Cart;
 use App\Models\Order;
+use App\Models\Promo;
 use App\Models\Address;
 use Illuminate\Http\Request;
 use App\Models\ProductDetail;
-use App\Models\Promo;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\View;
 use Yajra\DataTables\Facades\DataTables;
 
 class OrderController extends Controller
@@ -25,34 +27,55 @@ class OrderController extends Controller
 
             $query = Order::query();
 
-            // Filter data berdasarkan tanggal jika tanggal mulai dan tanggal selesai tersedia
+
             if ($startDate && $endDate) {
                 $query->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
             }
 
-            $data = $query->get();
 
-            return DataTables::of($data)
-                ->addColumn('name', function ($data) {
-                    $name = $data->cart->product->name;
-                    return $name;
-                })
-                ->addColumn('username', function ($data) {
-                    $username = $data->user->name ?? 'Not Registered';
-                    return $username;
-                })
+            $data = $query->with(['cart.product', 'user'])
+                ->get()
+                ->groupBy('code_transfer');
+
+
+            $dataTableData = collect();
+
+            foreach ($data as $codeTransfer => $orders) {
+
+                $products = $orders->map(function ($order) {
+                    return [
+                        'name' => $order->cart->product->name,
+                        'total' => $order->cart->qty * $order->cart->productDetail->where('product_id', $order->cart->product_id)->where('nic', $order->cart->nic)->first()->price,
+                    ];
+                });
+
+
+                $username = $orders->first()->user ? $orders->first()->user->name : 'Not Registered';
+
+
+                $total = $products->sum('total');
+
+
+                $dataTableData->push([
+                    'code_transfer' => $codeTransfer,
+                    'username' => $username,
+                    'total' => $total,
+                    'created_at' => Carbon::parse($orders->first()->created_at)->translatedFormat('d F Y H:i'),
+                    'payment_status' => $orders->first()->payment_status,
+                    'action' => '<a href="/dashboard/order/detail-product-' . $orders->first()->code_transfer . '" class="info btn btn-info btn-sm"><i class="fa-solid fa-circle-info" style="color: #ffffff;"></i></a> <a onclick="deleteConfirmation(' . $orders->first()->id . ')" class="delete btn btn-danger btn-sm"><i class="fas fa-trash" style="color: white;"></i></a>',
+                    //<a href="/dashboard/order/detail-' . $orders->first()->id . '" class="success btn btn-success btn-sm"><i class="fa-solid fa-bag-shopping" style="color: #ffffff;"></i></a> <a href="/dashboard/order/cost-' . $orders->first()->id . '" class="info btn btn-warning btn-sm"><i class="fa-solid fa-receipt" style="color: #ffffff;"></i> </a>
+                ]);
+            }
+
+            return DataTables::of($dataTableData)
                 ->addIndexColumn()
-                ->addColumn('action', function ($data) {
-                    $actionBtn = '<a href="/dashboard/order/detail-product-' . $data->id . '" class="info btn btn-info btn-sm"><i class="fa-solid fa-circle-info" style="color: #ffffff;"></i></a> <a href="/dashboard/order/detail-' . $data->id . '" class="success btn btn-success btn-sm"><i class="fa-solid fa-bag-shopping" style="color: #ffffff;"></i></a> <a href="/dashboard/order/cost-' . $data->id . '" class="info btn btn-warning btn-sm"><i class="fa-solid fa-receipt" style="color: #ffffff;"></i> </a> <a onclick="deleteConfirmation(' . $data->id . ')" class="delete btn btn-danger btn-sm"><i class="fas fa-trash" style="color: white;"></i></a>';
-                    return $actionBtn;
-                    //<i class="fa-solid fa-bag-shopping"></i>
-                })
                 ->rawColumns(['action'])
                 ->make(true);
         }
 
         return view('order.all');
     }
+
 
 
     public function reqOrder()
@@ -67,6 +90,10 @@ class OrderController extends Controller
                 ->addColumn('username', function ($data) {
                     $username = $data->user->name ?? 'Not Registered';
                     return $username;
+                })
+                ->addColumn('qty', function ($data) {
+                    $qty = $data->cart->qty;
+                    return $qty;
                 })
                 ->addIndexColumn()
                 ->addColumn('action', function ($data) {
@@ -128,6 +155,46 @@ class OrderController extends Controller
         return redirect()->route('order.reqOrder')->with('success', 'Berhasil mengubah resi!');
     }
 
+    public function exportPdf()
+    {
+        $orders = Order::where('status', 'success')->get();
+
+
+        $groupedOrders = $orders->groupBy('code_transfer');
+
+
+        $pdfData = [];
+
+        foreach ($groupedOrders as $codeTransfer => $orders) {
+            $customerName = $orders->first()->user->name ?? ($orders->first()->address->fullname ?? 'Not Registered');
+            $productNames = $orders->pluck('cart.product.name')->implode(', ');
+            $quantities = $orders->pluck('cart.qty')->implode(', ');
+            $totalPrices = $orders->sum('total');
+
+            $pdfData[] = [
+                'code_transfer' => $codeTransfer,
+                'customer' => $customerName,
+                'product' => $productNames,
+                'qty' => $quantities,
+                'total' => $totalPrices,
+            ];
+        }
+
+
+        $view = View::make('order.PDF', compact('pdfData'));
+        $html = $view->render();
+
+        $dompdf = new Dompdf();
+        $dompdf->set_option('isHtml5ParserEnabled', true);
+        $dompdf->set_option('isPhpEnabled', true);
+        $dompdf->set_option('isRemoteEnabled', true);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+
+        return $dompdf->stream('Daftar-Order.pdf');
+    }
+
 
     public function detailFailed($id)
     {
@@ -161,12 +228,38 @@ class OrderController extends Controller
     }
 
 
-    public function detailProduct($id)
+    public function detailProduct($code_transfer)
     {
-        $order = Order::find($id);
-        $date = Carbon::parse($order->created_at)->translatedFormat('d F Y H:i');
-        return view('order.detailproduct', compact('order', 'date'));
+        $orders = Order::where('code_transfer', $code_transfer)->get();
+        $orderDetails = [];
+        $totalSubtotal = 0;
+        $totalPromo = 0;
+        $totalAll = 0;
+
+        foreach ($orders as $order) {
+            $date = Carbon::parse($order->created_at)->translatedFormat('d F Y H:i');
+            $price = ProductDetail::where('product_id', $order->cart->product_id)
+                ->where('nic', $order->cart->nic)->first()->price;
+
+            $subtotal = $price * $order->cart->qty;
+            $totalSubtotal += $subtotal;
+
+            $totalPromo += (int) $order->promo;
+
+            $totalAll = $totalSubtotal - $totalPromo;
+
+            $orderDetails[] = [
+                'order' => $order,
+                'date' => $date,
+                'price' => $price,
+                'subtotal' => $subtotal,
+            ];
+        }
+
+        return view('order.detailproduct', compact('orderDetails', 'orders' , 'totalSubtotal', 'totalPromo', 'totalAll'));
+        //return response()->json($orderDetails);
     }
+
 
     public function updateStatus(Request $request, $id)
     {

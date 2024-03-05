@@ -18,7 +18,10 @@
     <div class="card shadow m-2 p-3">
         <div class="card-header border-0 flex justify-between items-center">
             <h3 class="mb-0">Daftar Product</h3>
-            <a href="{{ route('product.create') }}" class="btn btn-success ml-2 leading-2 px-3">+ Product</a>
+            <div>
+                <a href="{{ route('product.create') }}" class="btn btn-success ml-2 leading-2 px-3">+ Product</a>
+                {{-- <a href="{{ route('cart.list') }}" class="btn btn-info ml-2 leading-2 px-3 text-white"><i class="fa-solid fa-cart-shopping" style="color: #ffffff;"></i></a> --}}
+            </div>
         </div>
         @if (session()->has('success'))
             <div class="alert alert-success alert-dismissible d-flex align-items-center fade show">
@@ -124,7 +127,7 @@
                             </th>`;
                         }
                     },
-                    
+
                     {
                         data: 'action',
                         name: 'action',

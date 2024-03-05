@@ -12,13 +12,6 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             @endif
-
-            {{-- <div class="col-md-12">
-                <label class="form-label" for="image">Image</label>
-                <img src="{{ asset('assets/product/' . $order->cart->product->image) }}" alt=""
-                    class="w-25 mx-auto d-flex justify-content-center align-items-center pt-3 img-fluid">
-            </div>
-            <h1>{{$order->cart->product}}</h1> --}}
             <div class="wrapper-tabel">
                 <form action="{{ route('order.updateCart', ['id' => $order->id]) }}" method="POST"
                     enctype="multipart/form-data">

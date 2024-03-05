@@ -15,23 +15,23 @@
                     <div class="card-header">
                         <div class="d-flex justify-content-between">
                             <div>
-                                <h4 class="mb-1">Order ID: {{ substr($order->code_transfer, -5) }}</h4>
+                                <h4 class="mb-1">Order ID: {{ substr($orderDetails[0]['order']['code_transfer'], -6) }}</h4>
                                 <div class="d-flex align-items-center">
-                                    <small>Tanggal Order: {{ $date }}</small>
+                                    <small>Tanggal Order: {{ $orderDetails[0]['date'] }}</small>
                                     <span id="orderStatus" class="badge ms-2"
                                         style="background-color:
-                                        @if ($order->status == 'pending') orange;
-                                        @elseif($order->status == 'success')
+                                        @if ($orderDetails[0]['order']->status == 'pending') orange;
+                                        @elseif($orderDetails[0]['order']->status == 'success')
                                         green;
-                                        @elseif($order->status == 'failed')
+                                        @elseif($orderDetails[0]['order']->status == 'failed')
                                         red; @endif">
-                                        {{ $order->status }}
+                                        {{ $orderDetails[0]['order']->status }}
                                     </span>
 
                                 </div>
                             </div>
                             <div>
-                                <a href="{{ asset('assets/transfer/' . $order->transfer) }}" data-lightbox="transfer"
+                                <a href="{{ asset('assets/transfer/' . $orderDetails[0]['order']->transfer) }}" data-lightbox="transfer"
                                     class="btn btn-primary" data-title="Bukti Transfer">Bukti
                                     Transfer</a>
                             </div>
@@ -50,6 +50,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    @foreach ($orders as $order)
                                     <tr>
                                         <td>
                                             <div class="d-flex align-items-center">
@@ -59,14 +60,14 @@
                                                 <div class="ms-3">
                                                     <h5 class="mb-0"> <a href="#!"
                                                             class="text-inherit">{{ $order->cart->product->name }}</a></h5>
-                                                    <small>NIC: {{ $order->cart->productDetail->nic }}</small>
+                                                    <small>NIC: {{ $order->cart->nic }}</small>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>{{ $order->cart->qty }}</td>
-                                        <td>Rp{{ number_format($order->cart->productDetail->price * $order->cart->qty, 0, ',', '.') }}
-                                        </td>
+                                        <td>Rp{{ number_format($order->subtotal, 0, ',', '.') }}</td>
                                     </tr>
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
@@ -75,9 +76,9 @@
             </div>
             <div class="col-lg-5">
                 <div class="card mb-4 mt-4 mt-lg-0">
-                    <div class="card-header">
+                    {{-- <div class="card-header">
                         <h4 class="mb-0">Order Details</h4>
-                    </div>
+                    </div> --}}
                     <div class="table-responsive">
                         <table class="table table-centered mb-0">
                             <thead class="table-light">
@@ -89,20 +90,19 @@
                             <tbody>
                                 <tr>
                                     <td>Sub Total :</td>
-                                    <td>Rp{{ number_format($order->subtotal, 0, ',', '.') }}</td>
+                                    <td>Rp{{ number_format($totalSubtotal, 0, ',', '.') }}</td>
                                 </tr>
                                 <tr>
                                     <td>Discount : </td>
-                                    <td>Rp{{ number_format($order->promo, 0, ',', '.') }}</td>
-
+                                    <td>Rp{{ number_format($totalPromo, 0, ',', '.') }}</td>
                                 </tr>
                                 <tr>
 
                                     <td>Total :</td>
-                                    <td>Rp{{ number_format($order->total, 0, ',', '.') }}</td>
-
+                                    <td>Rp{{ number_format($totalAll, 0, ',', '.') }}</td>
                                 </tr>
-                                <form id="updateForm" method="POST"
+
+                                {{-- <form id="updateForm" method="POST"
                                     action="{{ route('order.updateStatus', ['id' => $order->id]) }}">
                                     @csrf
                                     @method('PUT')
@@ -110,16 +110,16 @@
                                         <td>Status :</td>
                                         <td>
                                             <select name="status" id="status" class="form-select">
-                                                <option value="pending" @if ($order->status == 'pending') selected @endif>
+                                                <option value="pending" @if ($orderDetails[0]['order']->status  == 'pending') selected @endif>
                                                     Pending</option>
-                                                <option value="success" @if ($order->status == 'success') selected @endif>
+                                                <option value="success" @if ($orderDetails[0]['order']->status  == 'success') selected @endif>
                                                     Success</option>
-                                                <option value="failed" @if ($order->status == 'failed') selected @endif>
+                                                <option value="failed" @if ($orderDetails[0]['order']->status  == 'failed') selected @endif>
                                                     Failed</option>
                                             </select>
                                         </td>
                                     </tr>
-                                </form>
+                                </form> --}}
 
                             </tbody>
                         </table>
@@ -136,16 +136,16 @@
                                     </span> <span class="text-dark">#{{ $order->code_transfer }}</span></li>
                                 <li class="d-flex justify-content-between mb-2"><span>Metode Pembayaran :
                                     </span> <span class="text-dark">
-                                        @if ($order->payment == 'transfer-payment-bca')
+                                        @if ($orderDetails[0]['order']->payment == 'transfer-payment-bca')
                                             BCA
-                                        @elseif($order->payment == 'online-payment')
+                                        @elseif($orderDetails[0]['order']->payment == 'online-payment')
                                             Online Payment
-                                        @elseif($order->payment == 'gopay')
+                                        @elseif($orderDetails[0]['order']->payment == 'gopay')
                                             Gopay
                                         @endif
                                     </span></li>
                                 <li class="d-flex justify-content-between"><span>Total : </span>
-                                    <span class="text-dark ">Rp{{ number_format($order->total, 0, ',', '.') }}</span>
+                                    <span class="text-dark ">Rp{{ number_format($totalAll, 0, ',', '.') }}</span>
                                 </li>
                             </ul>
                         </div>
@@ -183,7 +183,7 @@
                     status);
             }
             $.ajax({
-                url: "{{ route('order.updateStatus', ['id' => $order->id]) }}",
+                url: "{{ route('order.updateStatus', ['id' => $orderDetails[0]['order']['id']]) }}",
                 type: "POST",
                 data: {
                     status: status,

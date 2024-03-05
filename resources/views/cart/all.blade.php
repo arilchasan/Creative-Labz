@@ -18,7 +18,11 @@
     <div class="card shadow m-2 p-3">
         <div class="card-header border-0 flex justify-between items-center">
             <h3 class="mb-0">Daftar Cart</h3>
-            {{-- <a href="{{ route('cart.create') }}" class="btn btn-success ml-2 leading-2 px-3">+ Cart</a> --}}
+            <form action="{{ route('cart.order') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <button type="submit" id="orderButton" class="btn btn-success ml-2 leading-2 px-3" style="color: white;background-color: green">All</button>
+                <input type="hidden" name="cart_id" id="cartIdsInput" value="">
+            </form>
         </div>
         @if (session()->has('success'))
             <div class="alert alert-success alert-dismissible d-flex align-items-center fade show">
@@ -87,8 +91,7 @@
                     "infoFiltered": "(filter dari _MAX_ total data)",
 
                 },
-                columns: [
-                    {
+                columns: [{
                         data: null,
                         "sortable": false,
                         "searchable": false,
@@ -183,6 +186,16 @@
                         }
                     },
                 ],
+                initComplete: function(settings, json) {
+                    var cartIds = [];
+                    table.rows().every(function() {
+                        var data = this.data();
+                        cartIds.push(data.id);
+                    });
+
+                    // Set nilai input cart_ids sebagai array JSON
+                    $('#cartIdsInput').val(JSON.stringify(cartIds));
+                }
             });
         });
 
@@ -209,6 +222,5 @@
                 alert.style.display = 'none';
             }
         }
-
     </script>
 @endsection

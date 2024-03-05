@@ -21,7 +21,7 @@
                 <div class="col-md-12 mb-3">
                     <label class="form-label" for="price">Price</label>
                     <input id="price" type="text" name="price"
-                        value="Rp{{ number_format(old('price', $productDetail->price), 0, ',', '.') }}" class="form-control"
+                        value="Rp{{ number_format($price, 0, ',', '.') }}" class="form-control"
                         readonly>
                 </div>
                 <div class="col-md-12 mb-3">
@@ -54,9 +54,9 @@
             </a>
         </div>
 
-        <form id="orderForm" action="/dashboard/cart/order-{{ $cart->id }}" method="POST" style="display: none;">
+        <form id="orderForm" action="/dashboard/cart/order" method="POST" style="display: none;">
             @csrf
-            <input type="hidden" name="cart_id" value="{{ $cart->id }}">
+            <input type="hidden" name="cart_id" value="[{{ $cart->id }}]">
         </form>
 
     </section>

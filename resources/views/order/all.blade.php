@@ -264,7 +264,7 @@
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = "/dashboard/order/delete-" + id;
+                    window.location.href = "/dashboard/order/delete-order/" + id;
                 }
             })
         }
